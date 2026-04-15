@@ -1,0 +1,8 @@
+{
+  "min_ev_threshold": 0.05,
+  "min_kelly_threshold": 0.02,
+  "half_kelly": true,
+  "hit_rate": 0.5,
+  "simulated_roi_pct": 0.0,
+  "simulated_final_bankroll": 100.0
+}
