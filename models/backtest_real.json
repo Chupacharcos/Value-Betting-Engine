@@ -1,0 +1,21 @@
+{
+  "descripcion": "Backtest real: modelo sports-engine vs cuotas de cierre medias (Avg) de football-data.co.uk",
+  "test_seasons": [
+    "2425",
+    "2526"
+  ],
+  "n_matches": 758,
+  "ev_threshold": 0.05,
+  "n_bets": 579,
+  "hit_rate_pct": 35.9,
+  "roi_flat_pct": -2.92,
+  "units_pnl_flat": -16.88,
+  "kelly": {
+    "fraction": 0.5,
+    "start_bankroll": 100.0,
+    "final_bankroll": 21.55,
+    "return_pct": -78.45,
+    "max_drawdown_pct": -94.94
+  },
+  "honest_note": "Resultado sin maquillaje sobre 2 temporadas no vistas. Las cuotas de cierre agregan información que un modelo de stats públicas no tiene; un ROI negativo aquí es el resultado esperable y honesto — el valor del proyecto es el mecanismo (EV, Kelly, calibración), no una promesa de beneficio."
+}

@@ -270,29 +270,23 @@ def _kelly_sizing(probs, h_odd, d_odd, a_odd, bankroll=1000):
 
 @router.get("/valuebet/backtest")
 def get_backtest_results():
-    """Resultados simulados de backtesting 2022-2024."""
-    return {
-        "period": "2022-2024 (LaLiga + Champions simulado)",
-        "methodology": "Paper trading con señales del modelo. Sin datos reales de mercado.",
-        "results": {
-            "total_bets": 247,
-            "won": 134,
-            "lost": 113,
-            "hit_rate_pct": 54.3,
-            "avg_ev_pct": 6.8,
-            "roi_pct": 8.2,
-            "sharpe_ratio": 1.34,
-            "max_drawdown_pct": -12.4,
-            "best_month_roi": 22.1,
-            "worst_month_roi": -8.3,
-        },
-        "by_outcome": {
-            "home_win": {"n": 142, "hit_rate": 0.61, "roi": 9.1},
-            "draw": {"n": 38, "hit_rate": 0.37, "roi": 4.2},
-            "away_win": {"n": 67, "hit_rate": 0.48, "roi": 7.8},
-        },
-        "disclaimer": "Simulación estadística. Resultados pasados no garantizan rendimientos futuros. No ejecuta órdenes reales.",
-    }
+    """Backtest REAL: modelo sports-engine vs cuotas de cierre reales
+    (football-data.co.uk) en las temporadas 24/25 y 25/26 que el modelo no vio.
+    Generado por scripts/backtest_real.py — se sirve tal cual, ROI negativo
+    incluido."""
+    bt_path = MODELS_DIR / "backtest_real.json"
+    if not bt_path.exists():
+        raise HTTPException(503, "Backtest no generado. Ejecuta scripts/backtest_real.py")
+    with open(bt_path) as f:
+        data = json.load(f)
+    data["disclaimer"] = (
+        "Backtest sobre cuotas de cierre reales. El resultado es NEGATIVO y se "
+        "publica tal cual: enseña por qué batir al cierre del mercado con "
+        "estadísticas públicas es casi imposible, y cómo Kelly amplifica las "
+        "pérdidas cuando el edge estimado no es real. Nada de esto es "
+        "asesoramiento de apuestas."
+    )
+    return data
 
 
 @router.get("/valuebet/stats")
