@@ -108,3 +108,47 @@ uvicorn api:app --port 8003
 ## Licencia
 
 MIT
+
+
+## Integración, datos y licencia
+
+**Licencia:** MIT (ver [LICENSE](LICENSE)) — uso libre, incluido comercial,
+manteniendo el aviso de copyright. Sin garantía ni soporte incluidos.
+
+### Exportación CSV
+
+Las señales se sirven también en **CSV plano**, una fila por value bet, para
+abrirlas en Excel o Google Sheets y cargarlas en un tracker sin aplanar el JSON
+a mano:
+
+```bash
+curl "http://localhost:8003/ml/valuebet/signals.csv?min_ev=3" -o value_bets.csv
+```
+
+Columnas: `fixture_id, date, league, home_team, away_team, outcome, odd,
+model_prob, implied_prob, edge, ev_pct, kelly, overround_pct`.
+
+> **Sobre integrar una casa de apuestas:** ejecutar apuestas automáticamente
+> exigiría credenciales de la API de un operador (Betfair y similares), que
+> requieren cuenta aprobada y no se pueden implementar ni probar sin ellas. Este
+> motor **no ejecuta órdenes reales**: detecta valor y lo expone. El paper
+> trading es simulado.
+
+### Tratamiento de datos
+
+Sólo datos deportivos públicos: partidos, cuotas y probabilidades del modelo.
+**Sin datos personales, sin cuentas de usuario, sin dinero real.** Las cuotas se
+cachean en disco (`cache/`) para no golpear la fuente en cada petición.
+
+**Qué sale del servidor:** nada hacia proveedores de IA. **Este proyecto no usa
+ningún LLM**: la detección de valor es cálculo estadístico (probabilidad
+calibrada del modelo frente a la probabilidad implícita de la cuota, criterio de
+Kelly). La única salida es la descarga periódica de cuotas.
+
+### Despliegue propio y costes
+
+El repositorio es la aplicación completa. Depende de un **Sports Engine**
+(`SPORTS_ENGINE_URL`, también MIT y en este portfolio) para las probabilidades.
+Código gratuito (MIT); el coste es la infraestructura y, si se quiere, una
+fuente de cuotas de pago. La implantación y el mantenimiento corren a cargo de
+quien lo despliega — el autor no ofrece soporte ni consultoría.

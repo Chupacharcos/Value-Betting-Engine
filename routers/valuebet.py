@@ -10,6 +10,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/ml", tags=["valuebet"])
@@ -195,6 +196,35 @@ def get_signals(min_ev: float = 3.0, league: Optional[str] = None):
         "odds_updated": _odds_last_update,
         "disclaimer": "Sistema de análisis estadístico. No ejecuta órdenes reales. El paper trading es simulado.",
     }
+
+
+@router.get("/valuebet/signals.csv")
+def get_signals_csv(min_ev: float = 3.0, league: Optional[str] = None):
+    """Las mismas señales que /valuebet/signals, en CSV plano.
+
+    Una fila por value bet (no por partido) para que se pueda abrir en Excel,
+    Google Sheets o cargar en un tracker de apuestas sin aplanar el JSON a mano.
+    """
+    import csv, io
+
+    data = get_signals(min_ev=min_ev, league=league)
+    buf = io.StringIO()
+    cols = ["fixture_id", "date", "league", "home_team", "away_team", "outcome",
+            "odd", "model_prob", "implied_prob", "edge", "ev_pct", "kelly", "overround_pct"]
+    w = csv.DictWriter(buf, fieldnames=cols, extrasaction="ignore")
+    w.writeheader()
+    for sig in data["signals"]:
+        base = {k: sig.get(k) for k in ("fixture_id", "date", "league", "home_team",
+                                        "away_team", "overround_pct")}
+        for vb in sig["value_bets"]:
+            w.writerow({**base, **vb})
+
+    filename = f"value_bets_{datetime.now():%Y%m%d_%H%M}.csv"
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.get("/valuebet/fixture/{fixture_id}")
